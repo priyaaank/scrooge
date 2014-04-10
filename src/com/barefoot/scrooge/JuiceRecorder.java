@@ -8,14 +8,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+
 
 import java.io.IOException;
 
 public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
   private static final String TAG = "JuiceRecorder";
-  private static final String SERVICE_URL = "http://juice-app.herokuapp.com/employee/##employee_id##/drinks/##number_of_glasses##/glass";
+  private static final String SERVICE_URL = "http://juice-app.herokuapp.com/employee/juice/comsumption";
   public static final int DEFAULT_JUICE_GLASS_QUANTITY = 1;
   private final Context context;
 
@@ -28,11 +30,17 @@ public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
     Boolean persistedToServer = true;
     String employeeId = strings[0];
     HttpClient client = new DefaultHttpClient();
-    String modifiedUrl = SERVICE_URL.replace("##employee_id##",employeeId).replace("##number_of_glasses##","1");
-    HttpGet get = new HttpGet(modifiedUrl);
 
+      HttpPost post= new HttpPost(SERVICE_URL);
     try {
-      HttpResponse response = client.execute(get);
+        StringEntity ent = new StringEntity("{\n" +
+                "\"employee_id\":\""+employeeId+"\",\n" +
+                "\"numberOfGlasses\":\""+DEFAULT_JUICE_GLASS_QUANTITY+"\",\n" +
+                "\"date_time\":\""+System.currentTimeMillis()+"\"\n" +
+                "\n" +
+                "}");
+      post.setEntity(ent);
+      HttpResponse response = client.execute(post);
       StatusLine statusLine = response.getStatusLine();
       int statusCode = statusLine.getStatusCode();
 
@@ -44,11 +52,8 @@ public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
       e.printStackTrace();
     } catch (IOException e) {
       Log.e(TAG, e.getMessage());
-    } catch (Exception e) {
-
     }
-
-    return persistedToServer;
+      return persistedToServer;
   }
 
   @Override
@@ -56,5 +61,4 @@ public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
     String message = persistedToServer ? "Saved" : "Error occured, not saved!";
     Toast.makeText(this.context,message,Toast.LENGTH_LONG).show();
   }
-
 }
