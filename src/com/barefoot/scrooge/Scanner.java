@@ -38,6 +38,8 @@ public class Scanner extends Activity {
     if (scanResult != null) {
       ((TextView)this.findViewById(R.id.user_name)).setText(scanResult.getContents());
       ((TextView)this.findViewById(R.id.fortune_message)).setText(messageGenerator.getRandomFortune());
+
+      new JuiceRecorder(this.getApplicationContext()).execute((new String[]{scanResult.getContents()}));
     }
 
     scanBarcode();

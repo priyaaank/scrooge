@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
   private static final String TAG = "JuiceRecorder";
-  private static final String SERVICE_URL = "http://juicerecorder.herokuapp.com/juice/";
+  private static final String SERVICE_URL = "http://juice-app.herokuapp.com/employee/##employee_id##/drinks/##number_of_glasses##/glass";
   public static final int DEFAULT_JUICE_GLASS_QUANTITY = 1;
   private final Context context;
 
@@ -28,7 +28,8 @@ public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
     Boolean persistedToServer = true;
     String employeeId = strings[0];
     HttpClient client = new DefaultHttpClient();
-    HttpGet get = new HttpGet(SERVICE_URL + employeeId + "/" + DEFAULT_JUICE_GLASS_QUANTITY);
+    String modifiedUrl = SERVICE_URL.replace("##employee_id##",employeeId).replace("##number_of_glasses##","1");
+    HttpGet get = new HttpGet(modifiedUrl);
 
     try {
       HttpResponse response = client.execute(get);
@@ -43,6 +44,8 @@ public class JuiceRecorder extends AsyncTask<String, Void, Boolean> {
       e.printStackTrace();
     } catch (IOException e) {
       Log.e(TAG, e.getMessage());
+    } catch (Exception e) {
+
     }
 
     return persistedToServer;
